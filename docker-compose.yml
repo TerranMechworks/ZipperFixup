@@ -1,0 +1,10 @@
+version: '3'
+services:
+  mech3fixup_build:
+    container_name: mech3fixup_build
+    image: mech3fixup_build:latest
+    build:
+      context : .
+      dockerfile: Dockerfile
+    volumes:
+    - "./package:/package:rw"
