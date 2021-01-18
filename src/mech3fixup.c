@@ -43,7 +43,7 @@ __fastcall void DrawLine(void* screenBuffer, int32_t x1, int32_t y1, int32_t x2,
     y2 = min(y2, height - 1);
     y2 = max(0, y2);
 
-    OrigDrawLineExFunc(screenBuffer, x1, y1, x2, y2, color, 2);
+    OrigDrawLineFunc(screenBuffer, x1, y1, x2, y2, color);
 }
 
 __fastcall void DrawLineDottedFunc(void* screenBuffer, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t color, uint32_t unk)
