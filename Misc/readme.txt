@@ -6,6 +6,7 @@ Run Mech3fixed.exe.
 
 Implemented fixes
 -----------------
-Timing issues related GetTickCount having a resolution of 1ms but an accuracy of 16ms
-Timing issues related to high system uptime.
-Bounds checking on target box lines (prevents crashes at higher resolutions).
+Version 0.0.1
+-Timing issues related GetTickCount having a resolution of 1ms but an accuracy of 16ms
+-Timing issues related to high system uptime.
+-Bounds checking on target box lines (prevents crashes at higher resolutions).
