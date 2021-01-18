@@ -2,16 +2,17 @@ cmake_minimum_required(VERSION 3.10...3.15)
 
 # Setting these is bad practice but it's a very specific target
 set(CMAKE_C_COMPILER "i686-w64-mingw32-gcc")
-#TODO figure out linking to get C++ to work
-#set(CMAKE_CXX_COMPILER "i686-w64-mingw32-gcc")
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+#TODO figure out linking and passing the compiler test to get C++ to work
+#set(CMAKE_CXX_COMPILER "i686-w64-mingw32-gcc")
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Mech3fixup
     VERSION 0.1
     DESCRIPTION "Fixes to make mech3 more stable"
-    LANGUAGES C CXX)
+    LANGUAGES C)
 
 set(C_WARN_FLAGS "-Wall -Wextra -Wfloat-conversion -Wshadow")
 set(CXX_WARN_FLAGS "${C_WARN_FLAGS} -Weffc++")
