@@ -27,13 +27,7 @@ __fastcall void DrawLine(void* screenBuffer, int32_t x1, int32_t y1, int32_t x2,
     int32_t width = *g_screenBufferWidthPx;
     int32_t height = *g_screenBufferHeightPx;
 
-#if 0
-    char buffer[128];
-    sprintf(buffer, "g_u1=%d u2=%d", *g_unk1, *g_unk2);
-    OutputDebugStringA(buffer);
-#endif
-
-    // bounds check drawing operation
+    // bounds check drawing operation as target boxes can go outside the screen
     x1 = min(x1, width - 1);
     x1 = max(0, x1);
     y1 = min(y1, height - 1);
@@ -48,11 +42,6 @@ __fastcall void DrawLine(void* screenBuffer, int32_t x1, int32_t y1, int32_t x2,
 
 __fastcall void DrawLineDottedFunc(void* screenBuffer, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int16_t color, uint32_t unk)
 {
-#if 1
-    char buffer[128];
-    sprintf(buffer, "unk=%x", unk);
-    OutputDebugStringA(buffer);
-#endif
     OrigDrawLineDottedFunc(screenBuffer, x1, y1, x2, y2, color, unk);
 }
 
