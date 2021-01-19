@@ -133,6 +133,8 @@ KERNEL32_API void PatchMech3()
     size_t bufferSize = 3 * 1024 * 1024;
     char* buffer = malloc(bufferSize);
 
+    printf("DLL version %s\n", PROJECT_VERSION);
+
     printf("Reading %s\n", exeName);
     FILE* fp = fopen(exeName, "rb");
     if (fp == NULL) {

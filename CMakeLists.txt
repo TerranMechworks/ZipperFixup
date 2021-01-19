@@ -8,9 +8,9 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 #TODO figure out linking and passing the compiler test to get C++ to work
 #set(CMAKE_CXX_COMPILER "i686-w64-mingw32-gcc")
 
-# Project name and a few useful settings. Other commands can pick up the results
+#TODO add C++ to the languages
 project(Mech3fixup
-    VERSION 0.1
+    VERSION 0.0.2
     DESCRIPTION "Fixes to make mech3 more stable"
     LANGUAGES C)
 
@@ -27,6 +27,7 @@ set(DLL_SRC
 )
 
 add_library(mech3fix SHARED ${DLL_SRC})
+add_compile_definitions(PROJECT_VERSION="${CMAKE_PROJECT_VERSION}")
 # Setup the shared library naming in the windows style
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_SUFFIX ".dll")
