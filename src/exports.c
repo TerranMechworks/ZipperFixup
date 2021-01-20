@@ -4,6 +4,9 @@
 // The linker gets very unhappy if code is after this.
 // It's probably due to generated code after weird inline asm sections
 
+// Ordinals here refer to the imports.
+// Windows defender gets huffy if we leave them off.
+
 // Functions we hook
 FORWARDED_EXPORT_WITH_ORDINAL(GetTickCount, FakeGetTickCount, 469)
 
@@ -54,3 +57,12 @@ FORWARDED_EXPORT_WITH_ORDINAL(GetStartupInfoA, KERNEL32.GetStartupInfoA, 431)
 FORWARDED_EXPORT_WITH_ORDINAL(CreateMutexA, KERNEL32.CreateMutexA, 93)
 FORWARDED_EXPORT_WITH_ORDINAL(GetLastError, KERNEL32.GetLastError, 361)
 FORWARDED_EXPORT_WITH_ORDINAL(WriteFile, KERNEL32.WriteFile, 913)
+
+// Extra functions that recoil uses
+FORWARDED_EXPORT_WITH_ORDINAL(InterlockedDecrement, KERNEL32.InterlockedDecrement, 541)
+FORWARDED_EXPORT_WITH_ORDINAL(InterlockedIncrement, KERNEL32.InterlockedIncrement, 545)
+FORWARDED_EXPORT_WITH_ORDINAL(CompareFileTime, KERNEL32.CompareFileTime, 55)
+FORWARDED_EXPORT_WITH_ORDINAL(WaitForMultipleObjects, KERNEL32.WaitForMultipleObjects, 894)
+FORWARDED_EXPORT_WITH_ORDINAL(GetSystemDefaultLangID, KERNEL32.GetSystemDefaultLangID, 440)
+FORWARDED_EXPORT_WITH_ORDINAL(CreateDirectoryA, KERNEL32.CreateDirectoryA, 72)
+FORWARDED_EXPORT_WITH_ORDINAL(GetCurrentDirectoryA, KERNEL32.GetCurrentDirectoryA, 314)
