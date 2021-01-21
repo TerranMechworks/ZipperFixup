@@ -21,18 +21,22 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_WARN_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc ${CMAKE_SHARED_LINKER_FLAGS}")
 
-set(DLL_SRC
-    src/mech3fixup.c
-    src/exports.c
-)
-
-add_library(mech3fix SHARED ${DLL_SRC})
-add_compile_definitions(PROJECT_VERSION="${CMAKE_PROJECT_VERSION}")
 # Setup the shared library naming in the windows style
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_SUFFIX ".dll")
 
-install(TARGETS mech3fix)
+
+set(MECH3_SRC
+    src/generic_fixup.c
+    src/mech3_fixup.c
+    src/exports.c
+)
+
+add_library(mech3fix SHARED ${MECH3_SRC})
+add_compile_definitions(PROJECT_VERSION="${CMAKE_PROJECT_VERSION}")
+
+# TODO rcoilfix
+# TODO pmoonfix
 
 #get_cmake_property(_variableNames VARIABLES)
 #list (SORT _variableNames)
