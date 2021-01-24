@@ -1,11 +1,22 @@
+// This is really just using the preprocessor to generate instructions for the linker
 
-#include "forward_export.h"
+#ifdef _MSC_VER
+#define FORWARDED_EXPORT_WITH_ORDINAL(exp_name, target_name, ordinal) __pragma(comment(linker, "/export:" #exp_name "=" #target_name ",@" #ordinal))
+#define FORWARDED_EXPORT(exp_name, target_name) __pragma(comment(linker, "/export:" #exp_name "=" #target_name))
+#endif
+#ifdef __GNUC__
+#define FORWARDED_EXPORT_WITH_ORDINAL(exp_name, target_name, ordinal) asm(".section .drectve\n\t.ascii \" -export:" #exp_name "=" #target_name "\"");
+#define FORWARDED_EXPORT(exp_name, target_name) asm(".section .drectve\n\t.ascii \" -export:" #exp_name "=" #target_name "\"");
+#endif
 
 // The linker gets very unhappy if code is after this.
 // It's probably due to generated code after weird inline asm sections
 
+// Ordinals here refer to the imports.
+// Windows defender gets huffy if we leave them off.
+
 // Functions we hook
-FORWARDED_EXPORT_WITH_ORDINAL(GetTickCount, FakeGetTickCount, 469)
+FORWARDED_EXPORT_WITH_ORDINAL(GetTickCount, get_tick_count, 469)
 
 // Other functions in kernel32 that mech3 uses.
 FORWARDED_EXPORT_WITH_ORDINAL(ReadFile, KERNEL32.ReadFile, 679)
