@@ -1,12 +1,17 @@
 Installation
-------------
-Copy InstallPatch.bat and mech3fix.dll to your MechWarrior3 directory.
+============
+Copy InstallPatch.bat and zipfixup.dll to your MechWarrior3 directory.
 Run InstallPatch.bat this will copy Mech3.exe to Mech3fixed.exe and patch it.
 Run Mech3fixed.exe.
 
-Implemented fixes
------------------
-Version 0.0.1
+Change Log
+==========
+0.0.2
+-----
+-Fix install script
+
+0.0.1
+-----
 -Timing issues related GetTickCount having a resolution of 1ms but an accuracy of 16ms
 -Timing issues related to high system uptime.
--Bounds checking on target box lines (prevents crashes at higher resolutions).
+-Mech3 Bounds checking on target box lines (prevents crashes at higher resolutions).

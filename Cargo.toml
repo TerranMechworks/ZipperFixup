@@ -1,0 +1,29 @@
+[package]
+name = "zipfixup"
+version = "0.1.0"
+edition = "2018"
+authors = ["Steve Lynch <eaterofpies@users.noreply.github.com>"]
+description = "A dll to fix some issues with mech3 and games sharing the same engine"
+readme = "README.md"
+license-file = "LICENSE.txt"
+repository = "https://github.com/TerranMechworks/mech3fixup"
+publish = false
+
+build = "build.rs"
+
+[dependencies]
+winapi = { version = "0.3.8", features = ["minwindef", "debugapi", "profileapi", "consoleapi"] }
+
+[build-dependencies]
+cc = "1.0"
+
+[lib]
+name = "zipfixup"
+crate-type = ["cdylib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+lto = true

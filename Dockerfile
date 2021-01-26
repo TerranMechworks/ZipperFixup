@@ -1,31 +1,28 @@
 # Use native image as a base. Don't emulate as this is a dev image
-FROM ubuntu:20.04 as base
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-# ubuntu packages
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    cmake \
-    make \
-    zip \
-    g++-mingw-w64-i686 \
-    && rm -rf /var/lib/apt/lists/*
+FROM rust:1.49
 
 WORKDIR /app/
-COPY CMakeLists.txt .
-COPY Misc Misc
-COPY src src
 
-WORKDIR /app/build
-RUN ls -laR .. \
-    && cmake -DCMAKE_BUILD_TYPE=RELEASE .. \
-    && make -j $(nproc)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    zip \
+    g++-mingw-w64-i686 \
+    && rm -rf /var/lib/apt/lists/
+
+RUN rustup target add i686-pc-windows-gnu
+
+COPY . /app/
+
+RUN cargo build --release --target "i686-pc-windows-gnu" \
+    && strip ./target/i686-pc-windows-gnu/release/zipfixup.dll \
+    && ls -lh ./target/i686-pc-windows-gnu/release/zipfixup.dll
 
 WORKDIR /app/package
-RUN cp /app/build/mech3fix.dll . \
+
+RUN cp /app/target/i686-pc-windows-gnu/release/zipfixup.dll . \
     && cp /app/Misc/* . \
     && ls -l \
-    && zip Mech3Fixup.zip ./*
+    && zip ZipperFixup-`cargo pkgid | cut -d# -f2 | cut -d: -f2`.zip ./* \
+    && ls -l
 
-CMD ["/bin/cp", "./Mech3Fixup.zip", "/package/"]
+CMD ["/bin/bash", "-c", "cp ./ZipperFixup*.zip /package/"]
