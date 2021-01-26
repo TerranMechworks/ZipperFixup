@@ -8,7 +8,6 @@ use std::time::Instant;
 use std::ffi::CString;
 use winapi::um::debugapi::OutputDebugStringA;
 
-use sha1::Sha1;
 use std::fs;
 
 mod mech3;
@@ -56,12 +55,11 @@ extern "system" fn DllMain(
     minwindef::TRUE
 }
 
-fn hash_exe() -> String{
+fn get_exe_size() -> usize{
     let path = std::env::current_exe().unwrap();
     println!("Running with binary {}", path.to_str().unwrap());
     let exe_file_data = fs::read(path).unwrap();
-    let hash = Sha1::from(exe_file_data).digest();
-    hash.to_string()
+    exe_file_data.len()
 }
 
 #[derive(Debug)]
@@ -71,12 +69,11 @@ enum ExeType{
     Mech3,
 }
 
-fn lookup_exe(hash: String) -> ExeType {
-    match hash.as_str() {
+fn lookup_exe(size: usize) -> ExeType {
+    // TODO this is a very crude match but might be good enough.
+    match size {
         // Mech3 1.2.
-        "6be974b58e2303c203c12c4688e71f526a2cd8d1" => ExeType::Mech3,
-        // Mech3 1.2 patched to load the dll.
-        "4b71436b8cb8915423a12dcd3fc341f9073ae3c4" => ExeType::Mech3,
+        2384384 => ExeType::Mech3,
         _ => ExeType::Unknown
     }
 }
@@ -92,9 +89,9 @@ const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 fn on_thread_attach() {
     println!("Fixup dll loaded");
     println!("Version:{}", VERSION);
-    let exe_hash = hash_exe();
+    let exe_hash = get_exe_size();
 
-    println!("exe sha {}", exe_hash);
+    println!("exe size {}", exe_hash);
     let exe_type = lookup_exe(exe_hash);
 
     println!("exe type {:?}", exe_type);
