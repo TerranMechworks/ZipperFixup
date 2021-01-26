@@ -9,10 +9,9 @@ RUN apt-get update \
     g++-mingw-w64-i686 \
     && rm -rf /var/lib/apt/lists/
 
-
 RUN rustup target add i686-pc-windows-gnu
 
-COPY code /app/
+COPY . /app/
 
 RUN cargo build --release --target "i686-pc-windows-gnu" \
     && strip ./target/i686-pc-windows-gnu/release/zipfixup.dll \
