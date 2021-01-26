@@ -121,8 +121,6 @@ where
     count
 }
 
-// TODO using regex for string replacement is overkill and adds 700k to the binary
-// Maybe just use splicing.
 fn patch_binary(exe_name: &str){
     const ORIG_DLL_NAME : &[u8] = b"KERNEL32.dll";
     const OLD_DLL_NAME : &[u8] = b"MECH3FIX.dll";
@@ -132,23 +130,35 @@ fn patch_binary(exe_name: &str){
     let try_read_file = fs::read(exe_name);
     let mut file_data = match try_read_file{
         Ok(res) => res,
+        // Assume a failure to read means the exe isn't there
         Err(_err) => return,
     };
     println!("{} loaded.", exe_name);
 
+    let alread_patched = replace_slice(file_data.as_mut_slice(), NEW_DLL_NAME, NEW_DLL_NAME);
+
+    // Patch for kernel32.dll and mech3fix.dll as some people have renamed the exes
     let count = replace_slice(file_data.as_mut_slice(), ORIG_DLL_NAME, NEW_DLL_NAME) +
         replace_slice(file_data.as_mut_slice(), OLD_DLL_NAME, NEW_DLL_NAME);
 
-    //TODO check replacements were made
-    println!("{} patched in {} places.", exe_name, count);
 
-    let mut new_exe_name : String = exe_name[0..exe_name.len()-4].to_owned();
-    new_exe_name.push_str("fixup.exe");
-    let _res = fs::write(&new_exe_name, file_data);
+    if count == 1 {
+        // There should only be one instance
+        println!("{} patched.", exe_name);
 
-    println!("{} written.", new_exe_name);
+        let mut new_exe_name : String = exe_name[0..exe_name.len()-4].to_owned();
+        new_exe_name.push_str("fixup.exe");
 
-    //TODO check res isn't an error
+        let res = fs::write(&new_exe_name, file_data);
+        match res {
+            Ok(()) => println!("{} written.", new_exe_name),
+            Err(err) =>  println!("{} failure during write: {}.", exe_name, err),
+        }
+    } else if alread_patched == 1 {
+        println!("{} already patched.", exe_name);
+    } else {
+        println!("{} patching failed.", exe_name);
+    }
 }
 
 #[no_mangle]
