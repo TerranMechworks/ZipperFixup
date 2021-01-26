@@ -10,7 +10,6 @@ use winapi::um::debugapi::OutputDebugStringA;
 
 use sha1::Sha1;
 use std::fs;
-use regex::{Regex, bytes};
 
 mod mech3;
 
@@ -108,29 +107,44 @@ fn on_thread_attach() {
     // stdout closed after this
 }
 
+fn replace_slice<T>(buf: &mut [T], from: &[T], to: &[T]) -> usize
+where
+    T: Clone + PartialEq,
+{
+    let mut count: usize = 0;
+    for i in 0..=buf.len() - from.len() {
+        if buf[i..].starts_with(from) {
+            count += 1;
+            buf[i..(i + from.len())].clone_from_slice(to);
+        }
+    }
+    count
+}
+
 // TODO using regex for string replacement is overkill and adds 700k to the binary
 // Maybe just use splicing.
 fn patch_binary(exe_name: &str){
-    const ORIG_DLL_NAME : &str = "KERNEL32.dll";
+    const ORIG_DLL_NAME : &[u8] = b"KERNEL32.dll";
+    const OLD_DLL_NAME : &[u8] = b"MECH3FIX.dll";
     const NEW_DLL_NAME : &[u8] = b"ZIPFIXUP.dll";
 
     println!("Checking for {}", exe_name);
     let try_read_file = fs::read(exe_name);
-    let file_data = match try_read_file{
+    let mut file_data = match try_read_file{
         Ok(res) => res,
         Err(_err) => return,
     };
     println!("{} loaded.", exe_name);
 
-    let file_re = bytes::Regex::new(ORIG_DLL_NAME).unwrap();
-    let new_file_data = file_re.replace_all(&file_data, NEW_DLL_NAME);
+    let count = replace_slice(file_data.as_mut_slice(), ORIG_DLL_NAME, NEW_DLL_NAME) +
+        replace_slice(file_data.as_mut_slice(), OLD_DLL_NAME, NEW_DLL_NAME);
 
     //TODO check replacements were made
-    println!("{} patched.", exe_name);
+    println!("{} patched in {} places.", exe_name, count);
 
-    let exe_re = Regex::new(r"\.exe$").unwrap();
-    let new_exe_name = exe_re.replace(exe_name, "fixup.exe").to_string();
-    let _res = fs::write(&new_exe_name, new_file_data);
+    let mut new_exe_name : String = exe_name[0..exe_name.len()-4].to_owned();
+    new_exe_name.push_str("fixup.exe");
+    let _res = fs::write(&new_exe_name, file_data);
 
     println!("{} written.", new_exe_name);
 
