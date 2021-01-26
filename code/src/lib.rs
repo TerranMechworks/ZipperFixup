@@ -12,6 +12,8 @@ use sha1::Sha1;
 use std::fs;
 use regex::{Regex, bytes};
 
+mod mech3;
+
 fn _debug_print(string: &str){
     let msg = CString::new(string).unwrap();
 
@@ -83,7 +85,7 @@ fn lookup_exe(hash: String) -> ExeType {
 fn install_hooks(exe_type: ExeType){
     match exe_type{
         ExeType::Unknown => (),
-        ExeType::Mech3 => (),
+        ExeType::Mech3 => (mech3::install_hooks()),
     }
 }
 
