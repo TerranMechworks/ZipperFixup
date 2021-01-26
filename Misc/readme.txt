@@ -6,6 +6,11 @@ Run Mech3fixed.exe.
 
 Change Log
 ==========
+0.1.0
+-----
+-Try adding support for Recoil and Pirate's moon
+-Move all code to rust as it was a pain to get C++ working
+
 0.0.2
 -----
 -Fix install script
