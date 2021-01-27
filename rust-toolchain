@@ -1,0 +1,4 @@
+[toolchain]
+channel = "stable"
+components = ["rustfmt"]
+targets = ["i686-pc-windows-gnu"]

@@ -9,11 +9,13 @@ RUN apt-get update \
     g++-mingw-w64-i686 \
     && rm -rf /var/lib/apt/lists/
 
-RUN rustup target add i686-pc-windows-gnu
+# Load the toolchain override; and cache it separately
+COPY rust-toolchain /app/
+RUN rustup show
 
 COPY . /app/
 
-RUN cargo build --release --target "i686-pc-windows-gnu" \
+RUN cargo build --release \
     && strip ./target/i686-pc-windows-gnu/release/zipfixup.dll \
     && ls -lh ./target/i686-pc-windows-gnu/release/zipfixup.dll
 
