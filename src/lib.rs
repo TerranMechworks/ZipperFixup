@@ -1,16 +1,13 @@
 #![cfg(windows)]
+use std::ffi::CString;
+use std::fs;
+use std::time::Instant;
 use winapi::shared::minwindef;
 use winapi::shared::minwindef::{BOOL, DWORD, HINSTANCE, LPVOID};
-
-use std::time::Instant;
+use winapi::um::debugapi::OutputDebugStringA;
 use winapi::um::winnt::{
     DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH, DLL_THREAD_ATTACH, DLL_THREAD_DETACH,
 };
-
-use std::ffi::CString;
-use winapi::um::debugapi::OutputDebugStringA;
-
-use std::fs;
 
 mod mech3;
 
@@ -37,8 +34,8 @@ unsafe extern "system" fn get_tick_count() -> DWORD {
 }
 
 #[no_mangle]
-#[allow(non_snake_case, unused_variables)]
-extern "system" fn DllMain(dll_module: HINSTANCE, call_reason: DWORD, reserved: LPVOID) -> BOOL {
+#[allow(non_snake_case)]
+extern "system" fn DllMain(_dll_module: HINSTANCE, call_reason: DWORD, _reserved: LPVOID) -> BOOL {
     match call_reason {
         DLL_PROCESS_ATTACH => on_thread_attach(),
         DLL_PROCESS_DETACH => (),
@@ -74,11 +71,12 @@ fn lookup_exe(size: usize) -> ExeType {
 fn install_hooks(exe_type: ExeType) {
     match exe_type {
         ExeType::Unknown => (),
-        ExeType::Mech3 => (mech3::install_hooks()),
+        ExeType::Mech3 => mech3::install_hooks(),
     }
 }
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn on_thread_attach() {
     println!("Fixup dll loaded");
     println!("Version:{}", VERSION);
@@ -117,15 +115,17 @@ fn patch_binary(exe_name: &str) {
     const NEW_DLL_NAME: &[u8] = b"ZIPFIXUP.dll";
 
     println!("Checking for {}", exe_name);
-    let try_read_file = fs::read(exe_name);
-    let mut file_data = match try_read_file {
+    let mut file_data = match fs::read(exe_name) {
         Ok(res) => res,
         // Assume a failure to read means the exe isn't there
-        Err(_err) => return,
+        Err(_) => return,
     };
     println!("{} loaded.", exe_name);
 
-    let alread_patched = replace_slice(file_data.as_mut_slice(), NEW_DLL_NAME, NEW_DLL_NAME);
+    // TODO: Is this check worth it? Is it still worth patching in this case?
+    let already_patched = file_data
+        .windows(NEW_DLL_NAME.len())
+        .any(|window| window == NEW_DLL_NAME);
 
     // Patch for kernel32.dll and mech3fix.dll as some people have renamed the exes
     let count = replace_slice(file_data.as_mut_slice(), ORIG_DLL_NAME, NEW_DLL_NAME)
@@ -135,15 +135,14 @@ fn patch_binary(exe_name: &str) {
         // There should only be one instance
         println!("{} patched.", exe_name);
 
-        let mut new_exe_name: String = exe_name[0..exe_name.len() - 4].to_owned();
-        new_exe_name.push_str("fixup.exe");
+        let exe_base = exe_name.strip_suffix(".exe").unwrap_or(exe_name);
+        let new_name = format!("{}fixup.exe", exe_base);
 
-        let res = fs::write(&new_exe_name, file_data);
-        match res {
-            Ok(()) => println!("{} written.", new_exe_name),
+        match fs::write(&new_name, file_data) {
+            Ok(()) => println!("{} written.", new_name),
             Err(err) => println!("{} failure during write: {}.", exe_name, err),
         }
-    } else if alread_patched == 1 {
+    } else if already_patched {
         println!("{} already patched.", exe_name);
     } else {
         println!("{} patching failed.", exe_name);
@@ -152,11 +151,10 @@ fn patch_binary(exe_name: &str) {
 
 #[no_mangle]
 pub extern "system" fn PatchGame() {
-    const SUPPORTED_EXES: &[&str] = &["Mech3.exe", "Recoil.exe", "Recoil3dfx.exe"];
     println!();
     println!("Finding exes to patch.");
 
-    for name in SUPPORTED_EXES.iter() {
+    for name in &["Mech3.exe", "Recoil.exe", "Recoil3dfx.exe"] {
         patch_binary(name)
     }
 }
