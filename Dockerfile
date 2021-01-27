@@ -13,6 +13,13 @@ RUN apt-get update \
 COPY rust-toolchain /app/
 RUN rustup show
 
+# Trick cargo into getting the dependencies so docker can cache them
+COPY Cargo.toml /app/
+RUN mkdir src \
+    && touch src/lib.rs \
+    && cargo build --release
+
+# Do the real build
 COPY . /app/
 RUN cargo build --release
 
