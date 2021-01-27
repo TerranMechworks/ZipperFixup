@@ -72,3 +72,11 @@ forwarded_export_with_ordinal!("WaitForMultipleObjects", "KERNEL32.WaitForMultip
 forwarded_export_with_ordinal!("GetSystemDefaultLangID", "KERNEL32.GetSystemDefaultLangID", 440);
 forwarded_export_with_ordinal!("CreateDirectoryA", "KERNEL32.CreateDirectoryA", 72);
 forwarded_export_with_ordinal!("GetCurrentDirectoryA", "KERNEL32.GetCurrentDirectoryA", 314);
+
+// Extra functions for pirate's moon
+forwarded_export_with_ordinal!("FindClose", "KERNEL32.FindClose", 205);
+forwarded_export_with_ordinal!("LoadResource", "KERNEL32.LoadResource", 586);
+forwarded_export_with_ordinal!("LockResource", "KERNEL32.LockResource", 600);
+forwarded_export_with_ordinal!("SizeofResource", "KERNEL32.SizeofResource", 835);
+forwarded_export_with_ordinal!("FindResourceExA", "KERNEL32.FindResourceExA", 225);
+forwarded_export_with_ordinal!("EnumResourceNamesA", "KERNEL32.EnumResourceNamesA", 164);
