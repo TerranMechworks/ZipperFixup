@@ -14,10 +14,7 @@ COPY rust-toolchain /app/
 RUN rustup show
 
 COPY . /app/
-
-RUN cargo build --release \
-    && strip ./target/i686-pc-windows-gnu/release/zipfixup.dll \
-    && ls -lh ./target/i686-pc-windows-gnu/release/zipfixup.dll
+RUN cargo build --release
 
 WORKDIR /app/package
 
