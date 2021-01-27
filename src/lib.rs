@@ -1,3 +1,5 @@
+#![feature(global_asm)]
+
 #![cfg(windows)]
 use std::ffi::CString;
 use std::fs;
@@ -9,6 +11,7 @@ use winapi::um::winnt::{
     DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH, DLL_THREAD_ATTACH, DLL_THREAD_DETACH,
 };
 
+mod exports;
 mod mech3;
 
 fn _debug_print(string: &str) {
