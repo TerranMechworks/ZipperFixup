@@ -1,3 +1,5 @@
+cargo-features = ["strip"]
+
 [package]
 name = "zipfixup"
 version = "0.1.0"
@@ -22,3 +24,5 @@ panic = "abort"
 [profile.release]
 panic = "abort"
 lto = true
+codegen-units = 1
+strip = "symbols"
