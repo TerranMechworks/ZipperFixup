@@ -2,7 +2,7 @@ cargo-features = ["strip"]
 
 [package]
 name = "zipfixup"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Steve Lynch <eaterofpies@users.noreply.github.com>"]
 description = "A dll to fix some issues with mech3 and games sharing the same engine"
