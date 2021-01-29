@@ -21,7 +21,8 @@ RUN mkdir src \
 
 # Do the real build
 COPY . /app/
-RUN cargo build --release
+RUN cargo build --release \
+    && cargo fmt -- --check
 
 WORKDIR /app/package
 
