@@ -1,11 +1,15 @@
 Installation
 ============
-Copy InstallPatch.bat and zipfixup.dll to your MechWarrior3 directory.
-Run InstallPatch.bat this will copy Mech3.exe to Mech3fixed.exe and patch it.
-Run Mech3fixed.exe.
+Copy InstallPatch.bat and zipfixup.dll to your game directory.
+Run InstallPatch.bat this will copy the game executable to <Game name>fixed.exe and patch it.
+Run the new executable.
 
 Change Log
 ==========
+0.1.1
+-----
+-Have another go at adding PM support
+
 0.1.0
 -----
 -Try adding support for Recoil and Pirate's moon
