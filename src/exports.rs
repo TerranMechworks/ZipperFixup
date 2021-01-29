@@ -1,9 +1,14 @@
-
 global_asm!(".section .drectve");
 
 macro_rules! forwarded_export_with_ordinal {
     ($exp_name:expr, $target_name:expr, $ordinal:expr) => {
-        global_asm!(concat!(".ascii \" -export:", $exp_name, "=", $target_name, "\""));
+        global_asm!(concat!(
+            ".ascii \" -export:",
+            $exp_name,
+            "=",
+            $target_name,
+            "\""
+        ));
     };
 }
 
@@ -42,18 +47,38 @@ forwarded_export_with_ordinal!("GetDriveTypeA", "KERNEL32.GetDriveTypeA", 332);
 forwarded_export_with_ordinal!("GetTempPathA", "KERNEL32.GetTempPathA", 460);
 forwarded_export_with_ordinal!("FreeLibrary", "KERNEL32.FreeLibrary", 241);
 forwarded_export_with_ordinal!("GetProcAddress", "KERNEL32.GetProcAddress", 409);
-forwarded_export_with_ordinal!("GetLogicalDriveStringsA", "KERNEL32.GetLogicalDriveStringsA", 366);
+forwarded_export_with_ordinal!(
+    "GetLogicalDriveStringsA",
+    "KERNEL32.GetLogicalDriveStringsA",
+    366
+);
 forwarded_export_with_ordinal!("GetFileSize", "KERNEL32.GetFileSize", 348);
 forwarded_export_with_ordinal!("GetFileTime", "KERNEL32.GetFileTime", 350);
 forwarded_export_with_ordinal!("LoadLibraryA", "KERNEL32.LoadLibraryA", 581);
 forwarded_export_with_ordinal!("lstrlenA", "KERNEL32.lstrlenA", 953);
 forwarded_export_with_ordinal!("GetVersionExA", "KERNEL32.GetVersionExA", 479);
 forwarded_export_with_ordinal!("GlobalMemoryStatus", "KERNEL32.GlobalMemoryStatus", 506);
-forwarded_export_with_ordinal!("QueryPerformanceFrequency", "KERNEL32.QueryPerformanceFrequency", 662);
+forwarded_export_with_ordinal!(
+    "QueryPerformanceFrequency",
+    "KERNEL32.QueryPerformanceFrequency",
+    662
+);
 forwarded_export_with_ordinal!("GetThreadPriority", "KERNEL32.GetThreadPriority", 465);
-forwarded_export_with_ordinal!("QueryPerformanceCounter", "KERNEL32.QueryPerformanceCounter", 661);
-forwarded_export_with_ordinal!("InitializeCriticalSection", "KERNEL32.InitializeCriticalSection", 537);
-forwarded_export_with_ordinal!("DeleteCriticalSection", "KERNEL32.DeleteCriticalSection", 128);
+forwarded_export_with_ordinal!(
+    "QueryPerformanceCounter",
+    "KERNEL32.QueryPerformanceCounter",
+    661
+);
+forwarded_export_with_ordinal!(
+    "InitializeCriticalSection",
+    "KERNEL32.InitializeCriticalSection",
+    537
+);
+forwarded_export_with_ordinal!(
+    "DeleteCriticalSection",
+    "KERNEL32.DeleteCriticalSection",
+    128
+);
 forwarded_export_with_ordinal!("GetCurrentThread", "KERNEL32.GetCurrentThread", 318);
 forwarded_export_with_ordinal!("EnterCriticalSection", "KERNEL32.EnterCriticalSection", 151);
 forwarded_export_with_ordinal!("ReleaseMutex", "KERNEL32.ReleaseMutex", 692);
@@ -68,8 +93,16 @@ forwarded_export_with_ordinal!("WriteFile", "KERNEL32.WriteFile", 913);
 forwarded_export_with_ordinal!("InterlockedDecrement", "KERNEL32.InterlockedDecrement", 541);
 forwarded_export_with_ordinal!("InterlockedIncrement", "KERNEL32.InterlockedIncrement", 545);
 forwarded_export_with_ordinal!("CompareFileTime", "KERNEL32.CompareFileTime", 55);
-forwarded_export_with_ordinal!("WaitForMultipleObjects", "KERNEL32.WaitForMultipleObjects", 894);
-forwarded_export_with_ordinal!("GetSystemDefaultLangID", "KERNEL32.GetSystemDefaultLangID", 440);
+forwarded_export_with_ordinal!(
+    "WaitForMultipleObjects",
+    "KERNEL32.WaitForMultipleObjects",
+    894
+);
+forwarded_export_with_ordinal!(
+    "GetSystemDefaultLangID",
+    "KERNEL32.GetSystemDefaultLangID",
+    440
+);
 forwarded_export_with_ordinal!("CreateDirectoryA", "KERNEL32.CreateDirectoryA", 72);
 forwarded_export_with_ordinal!("GetCurrentDirectoryA", "KERNEL32.GetCurrentDirectoryA", 314);
 

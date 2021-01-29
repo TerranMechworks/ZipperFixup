@@ -1,0 +1,71 @@
+name: Release
+on:
+  push:
+    branches:
+    - workflow_release
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-20.04
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+
+    steps:
+    - name: Get the branch and tag
+      id: info
+      shell: bash
+      run: |
+        branch="${GITHUB_REF#refs/heads/}"
+        echo "$branch"
+        if [[ "$branch" == "workflow_release" ]]; then
+          echo "::set-output name=version::TEST-0.0.0"
+          echo "::set-output name=draft::--draft"
+        else
+          echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
+          echo "::set-output name=draft::"
+        fi
+        echo "::set-output name=date::$(env TZ=':America/Los_Angeles' date +'%Y-%m-%d')"
+
+    - name: Install Mingw-w64
+      shell: bash
+      run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    # can't use actions-rs/toolchain@v1: https://github.com/actions-rs/toolchain/issues/126
+    - name: Install Rust
+      shell: bash
+      run: rustup show
+    - name: Build release binary
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --verbose --release
+
+    - name: Build archive
+      id: bundle
+      shell: bash
+      run: |
+        archive="ZipperFixup-${{ steps.info.outputs.version }}.zip"
+        mkdir staging
+        cp Misc/* staging/
+        cp target/i686-pc-windows-gnu/release/zipfixup.dll staging/
+        # junk paths so staging/ doesn't appear in the zip
+        zip -j "$archive" staging/*
+        echo "::set-output name=asset::$archive"
+
+    # Create the release last; if something else goes wrong in the run, there's
+    # less to clean up this way
+    - name: Create release
+      shell: bash
+      run: |
+        set -x
+        hub release create ${{ steps.info.outputs.draft }} \
+          --message "${{ steps.info.outputs.version }} (${{ steps.info.outputs.date }})" \
+          --attach "${{ steps.bundle.outputs.asset }}" \
+          "${{ steps.info.outputs.version }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
