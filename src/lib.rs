@@ -1,5 +1,4 @@
 #![feature(global_asm)]
-
 #![cfg(windows)]
 use std::ffi::CString;
 use std::fs;
