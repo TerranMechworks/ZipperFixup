@@ -6,7 +6,7 @@ WORKDIR /app/
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     zip \
-    g++-mingw-w64-i686 \
+    gcc-mingw-w64-i686 \
     && rm -rf /var/lib/apt/lists/
 
 # Load the toolchain override; and cache it separately
@@ -17,7 +17,7 @@ RUN rustup show
 COPY Cargo.toml /app/
 RUN mkdir src \
     && touch src/lib.rs \
-    && cargo build --release
+    && cargo fetch
 
 # Do the real build
 COPY . /app/
