@@ -22,4 +22,4 @@ If you don't want to install dependencies locally, we've provided some wrappers 
 
 ## License
 
-ZipperFixup is GPLv3 licensed. Please see `LICENSE.txt`.
+ZipperFixup is GPLv3 licensed. Please see `LICENSE`.
