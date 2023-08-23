@@ -2,6 +2,30 @@
 
 A redistributable DLL to fix some of the bugs in `Mech3.exe`.
 
+## ChangeLog
+
+### [Unreleased]
+
+### [0.1.1] - 2021-01-29
+
+- Have another go at adding PM support.
+
+### [0.1.0] - 2021-01-26
+
+- Try adding support for RC and PM.
+- Move all code to Rust as it was a pain to get C++ working.
+
+### [0.0.2] - 2021-01-19
+
+- Fix install script.
+- Display version number during install.
+
+### [0.0.1] - 2021-01-18
+
+- Fixed timing issues related GetTickCount having a resolution of 1ms but an accuracy of 16ms.
+- Fixed timing issues related to high system uptime.
+- MW: Bounds checking on target box lines (prevents crashes at higher resolutions).
+
 ## Building
 
 ### Local
@@ -19,6 +43,18 @@ If you don't want to install dependencies locally, we've provided some wrappers 
 ```bash
 ./dcargo build --release
 ```
+
+## Release procedure
+
+1. Review changelog in `README.md`
+1. Add release version number and release date to changelog; add a new `[Unreleased]` header
+1. Bump version in `Cargo.toml`
+1. Commit, push, and wait for CI
+1. Create a tag of the version (e.g. `git tag v0.1.1`)
+1. Push the tag (`git push --tags`)
+1. The build will automatically create a release as a draft
+1. Add changelog items to the release notes via the GitHub web interface
+1. Publish the release via the GitHub web interface
 
 ## License
 

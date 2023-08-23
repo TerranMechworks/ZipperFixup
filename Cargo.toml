@@ -1,18 +1,19 @@
-cargo-features = ["strip"]
-
 [package]
 name = "zipfixup"
-version = "0.1.1"
-edition = "2018"
-authors = ["Steve Lynch <eaterofpies@users.noreply.github.com>"]
-description = "A dll to fix some issues with mech3 and games sharing the same engine"
+version = "0.1.2"
+edition = "2021"
+authors = [
+    "Steve Lynch <eaterofpies@users.noreply.github.com>",
+    "Toby Fleming <tobywf@users.noreply.github.com>",
+]
+description = "A project to fix some issues for some Zipper-related games"
 readme = "README.md"
-license-file = "LICENSE.txt"
-repository = "https://github.com/TerranMechworks/mech3fixup"
+license = "GPLv3"
+repository = "https://github.com/TerranMechworks/ZipperFixup"
 publish = false
 
 [dependencies]
-winapi = { version = "0.3.8", features = ["minwindef", "debugapi", "profileapi", "consoleapi"] }
+winapi = { version = "0.3.9", features = ["minwindef", "debugapi", "profileapi", "consoleapi"] }
 
 [lib]
 name = "zipfixup"

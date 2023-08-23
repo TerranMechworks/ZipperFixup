@@ -1,5 +1,5 @@
 # Use native image as a base. Don't emulate as this is a dev image
-FROM rust:1.49
+FROM rust:1.71-bookworm
 
 WORKDIR /app/
 
@@ -10,7 +10,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/
 
 # Load the toolchain override
-COPY rust-toolchain /app/
+COPY rust-toolchain.toml /app/
 RUN rustup show
 
 CMD ["/bin/bash"]
