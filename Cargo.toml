@@ -15,8 +15,13 @@ publish = false
 [dependencies]
 winapi = { version = "0.3.9", features = ["minwindef", "debugapi", "profileapi", "consoleapi"] }
 
+[[bin]]
+name = "patch"
+path = "src/main.rs"
+
 [lib]
 name = "zipfixup"
+path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [profile.dev]

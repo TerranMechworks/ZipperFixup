@@ -81,6 +81,7 @@ jobs:
           mkdir staging
           cp misc/* staging/
           cp target/i686-pc-windows-gnu/release/zipfixup.dll staging/
+          cp target/i686-pc-windows-gnu/release/patch.exe staging/
           # junk paths so staging/ doesn't appear in the zip
           zip -j "$archive" staging/*
           echo "asset=$archive" >> $GITHUB_OUTPUT

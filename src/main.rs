@@ -38,8 +38,7 @@ fn patch_binary(exe_data: &mut [u8]) -> bool {
     }
 }
 
-#[no_mangle]
-pub extern "system" fn PatchGame() {
+fn main() {
     println!();
     println!("Finding exe to patch...");
 
