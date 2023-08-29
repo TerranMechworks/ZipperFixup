@@ -1,5 +1,11 @@
-package/
 target/
+package/
+
+.DS_Store
+.idea/
+.vscode/
+
+README.html
 
 .gitignore
-README.html
+.github/

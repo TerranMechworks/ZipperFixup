@@ -1,4 +1,8 @@
 target/
 package/
 
+.DS_Store
+.idea/
+.vscode/
+
 README.html

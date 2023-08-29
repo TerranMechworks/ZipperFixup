@@ -1,16 +1,14 @@
 #[macro_export]
-macro_rules! dbg {
+macro_rules! output {
     (@encode $msg:ident) => {{
-        let mut msg: Vec<u16> = $msg.encode_utf16().collect();
-        msg.push(0);
-        unsafe { ::winapi::um::debugapi::OutputDebugStringW(msg.as_ptr()) };
+        unsafe { ::winapi::um::debugapi::OutputDebugStringA($msg.as_ptr() as *const i8) };
     }};
     ($fmt:literal) => {{
-        let msg: &str = $fmt;
-        $crate::dbg!(@encode msg);
+        let msg: &str = concat!("[ZIPFIXUP] ", $fmt, "\0");
+        $crate::output!(@encode msg);
     }};
     ($fmt:literal, $($args:expr),+ $(,)?) => {{
-        let msg = format!($fmt, $($args,)+);
-        $crate::dbg!(@encode msg);
+        let msg: String = format!(concat!("[ZIPFIXUP] ", $fmt, "\0"), $($args,)+);
+        $crate::output!(@encode msg);
     }};
 }

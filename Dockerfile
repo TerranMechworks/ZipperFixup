@@ -1,4 +1,3 @@
-# Use native image as a base. Don't emulate as this is a dev image
 FROM rust:1.71-bookworm
 
 WORKDIR /app/
