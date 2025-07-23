@@ -1,5 +1,8 @@
-[package]
-name = "zipfixup"
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.2"
 
 description = "A project to fix some issues for some Zipper-related games"
@@ -13,24 +16,6 @@ license = "EUPL-1.2"
 
 edition = "2024"
 publish = false
-
-[dependencies]
-retour = "0.3.1"
-region = "3.0.2"
-
-[dependencies.winapi]
-version = "0.3.9"
-default-features = false
-features = ["debugapi", "libloaderapi"]
-
-[[bin]]
-name = "patch"
-path = "src/main.rs"
-
-[lib]
-name = "zipfixup"
-path = "src/lib.rs"
-crate-type = ["cdylib"]
 
 [profile.dev]
 panic = "abort"

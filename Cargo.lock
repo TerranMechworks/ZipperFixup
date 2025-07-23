@@ -229,3 +229,7 @@ dependencies = [
  "retour",
  "winapi",
 ]
+
+[[package]]
+name = "zippatch"
+version = "0.1.2"
