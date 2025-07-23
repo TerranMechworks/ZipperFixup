@@ -63,7 +63,7 @@ jobs:
         run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Sync toolchain
         shell: bash
@@ -78,10 +78,10 @@ jobs:
         shell: bash
         run: |
           archive="ZipperFixup-${{ steps.info.outputs.version }}.zip"
-          mkdir staging
-          cp misc/* staging/
-          cp target/i686-pc-windows-gnu/release/zipfixup.dll staging/
-          cp target/i686-pc-windows-gnu/release/patch.exe staging/
+          mkdir 'staging'
+          cp misc/* 'staging/'
+          cp 'target/i686-pc-windows-gnu/release/zipfixup.dll' 'staging/'
+          cp 'target/i686-pc-windows-gnu/release/patch.exe' 'staging/'
           # junk paths so staging/ doesn't appear in the zip
           zip -j "$archive" staging/*
           echo "asset=$archive" >> $GITHUB_OUTPUT

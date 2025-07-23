@@ -1,21 +1,27 @@
 [package]
 name = "zipfixup"
 version = "0.1.2"
-edition = "2021"
+
+description = "A project to fix some issues for some Zipper-related games"
 authors = [
     "Steve Lynch <eaterofpies@users.noreply.github.com>",
     "Toby Fleming <tobywf@users.noreply.github.com>",
 ]
-description = "A project to fix some issues for some Zipper-related games"
-readme = "README.md"
-license = "GPLv3"
 repository = "https://github.com/TerranMechworks/ZipperFixup"
+readme = "README.md"
+license = "EUPL-1.2"
+
+edition = "2024"
 publish = false
 
 [dependencies]
-winapi = { version = "0.3.9", features = ["minwindef", "debugapi", "profileapi", "consoleapi", "libloaderapi"] }
 retour = "0.3.1"
-anyhow = "1.0"
+region = "3.0.2"
+
+[dependencies.winapi]
+version = "0.3.9"
+default-features = false
+features = ["debugapi", "libloaderapi"]
 
 [[bin]]
 name = "patch"

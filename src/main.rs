@@ -63,3 +63,7 @@ fn main() {
         };
     }
 }
+
+/// https://github.com/rust-lang/rust/issues/79609
+#[unsafe(no_mangle)]
+pub extern "C" fn _Unwind_Resume() {}

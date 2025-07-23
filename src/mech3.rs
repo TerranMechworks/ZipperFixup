@@ -1,15 +1,12 @@
-use crate::output;
-use anyhow::{bail, Context as _, Result};
+use crate::hook::{decl_hooks, hook};
+use crate::{Result, output};
 use retour::GenericDetour;
-use std::cmp;
-use std::sync::{Mutex, OnceLock};
+use std::sync::OnceLock;
 
 // Globals
 
 const SCREEN_WIDTH_PX: *const i32 = 0x8007cc as _;
 const SCREEN_HEIGHT_PX: *const i32 = 0x8007d0 as _;
-const _SCREEN_WIDTH_BYTES: *const i32 = 0x8007d4 as _;
-const _SCREEN_BUF_COL_DEPTH_BYTES: *const i32 = 0x8007d8 as _;
 
 // Hooked functions
 
@@ -21,51 +18,31 @@ const DRAW_DASHED_LINE_ADDR: i32 = 0x00563c50;
 
 // Hooks
 
-static DRAW_LINE_HOOK: OnceLock<GenericDetour<DrawLineFn>> = OnceLock::new();
-static DRAW_DASHED_LINE_HOOK: OnceLock<GenericDetour<DrawDashedLineFn>> = OnceLock::new();
-static INSTALLED: Mutex<bool> = Mutex::new(false);
+decl_hooks! {
+    DRAW_LINE_HOOK: DrawLineFn,
+    DRAW_DASHED_LINE_HOOK: DrawDashedLineFn,
+}
 
-pub fn install_hooks() -> Result<()> {
-    output!("Installing hooks (MW)");
-    let mut installed = INSTALLED.lock().unwrap();
-    if *installed {
-        return Ok(());
-    }
+pub(crate) fn install_hooks() -> Result<()> {
+    output!("Installing hooks... (MW)");
 
-    let draw_line_detour = unsafe {
-        let target: DrawLineFn = std::mem::transmute(DRAW_LINE_ADDR);
-        GenericDetour::new(target, draw_line)
-    }
-    .context("failed to detour DrawLine")?;
+    let target: DrawLineFn = unsafe { std::mem::transmute(DRAW_LINE_ADDR) };
+    hook("DrawLine", target, draw_line, &DRAW_LINE_HOOK)?;
 
-    unsafe { draw_line_detour.enable() }.context("failed to enable DrawLine")?;
+    let target: DrawDashedLineFn = unsafe { std::mem::transmute(DRAW_DASHED_LINE_ADDR) };
+    hook(
+        "DrawDashedLine",
+        target,
+        draw_dashed_line,
+        &DRAW_DASHED_LINE_HOOK,
+    )?;
 
-    if let Err(_) = DRAW_LINE_HOOK.set(draw_line_detour) {
-        bail!("failed to set DrawLine hook");
-    }
-
-    output!("Hooked DrawLine");
-
-    let draw_dashed_line_detour = unsafe {
-        let target: DrawDashedLineFn = std::mem::transmute(DRAW_DASHED_LINE_ADDR);
-        GenericDetour::new(target, draw_dashed_line)
-    }
-    .context("failed to detour DrawDashedLine")?;
-
-    unsafe { draw_dashed_line_detour.enable() }.context("failed to enable DrawDashedLine")?;
-
-    if let Err(_) = DRAW_DASHED_LINE_HOOK.set(draw_dashed_line_detour) {
-        bail!("failed to set DrawDashedLine hook");
-    }
-
-    output!("Hooked DrawDashedLine");
-
-    *installed = true;
+    output!("Installed hooks");
     Ok(())
 }
 
 fn clamp(min: i32, max: i32, value: i32) -> i32 {
-    cmp::min(max, cmp::max(value, min))
+    std::cmp::min(max, std::cmp::max(value, min))
 }
 
 fn clamp_to_screen_space(x: i32, y: i32) -> (i32, i32) {
@@ -84,7 +61,7 @@ extern "fastcall" fn draw_line(
     y2: i32,
     color: i16,
 ) {
-    output!("draw_line ({}, {}) - ({}, {})", x1, y1, x2, y2);
+    // output!("draw_line ({}, {}) - ({}, {})", x1, y1, x2, y2);
 
     let (x1, y1) = clamp_to_screen_space(x1, y1);
     let (x2, y2) = clamp_to_screen_space(x2, y2);
@@ -102,7 +79,7 @@ extern "fastcall" fn draw_dashed_line(
     color: i16,
     sections: i32,
 ) {
-    output!("draw_dashed_line ({}, {}) - ({}, {})", x1, y1, x2, y2);
+    // output!("draw_dashed_line ({}, {}) - ({}, {})", x1, y1, x2, y2);
 
     let (x1, y1) = clamp_to_screen_space(x1, y1);
     let (x2, y2) = clamp_to_screen_space(x2, y2);
