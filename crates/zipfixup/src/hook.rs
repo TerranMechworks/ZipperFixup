@@ -15,12 +15,12 @@ where
     output!("Hooking {}...", name);
 
     let detour = unsafe { GenericDetour::new(target, func) }
-        .map_err(|e| format!("failed to detour {}: {}", name, e))?;
+        .map_err(|e| format!("failed to detour {name}: {e}"))?;
 
-    unsafe { detour.enable() }.map_err(|e| format!("failed to enable {}: {}", name, e))?;
+    unsafe { detour.enable() }.map_err(|e| format!("failed to enable {name}: {e}"))?;
 
     hook.set(detour)
-        .map_err(|_| format!("failed to set {} hook: already set", name))?;
+        .map_err(|_| format!("failed to set {name} hook: already set"))?;
 
     output!("Hooked {}", name);
     Ok(())

@@ -3,9 +3,10 @@
 ## [Unreleased]
 
 - Project: Update Rust version to 1.88.0 and codebase. This moves off nightly, since everything we need is now stabilised, and should help with maintenance.
-- Patch: Rundll32 no longer seems to work... replaced it with `patch.exe`.
+- Patch: Rundll32 no longer seems to work... replaced it with `zippatch.exe`.
 - Project: Use retour/detour for hooking functions.
-- Project: Relicense under EUPL-1.2
+- Project: Relicense under EUPL-1.2.
+- Patch: Patcher now waits for enter.
 
 ## [0.1.1] - 2021-01-29
 

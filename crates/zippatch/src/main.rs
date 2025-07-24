@@ -16,28 +16,30 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub extern "C" fn _Unwind_Resume() {}
 
 fn main() {
-    println!("=== ZipPatch {} ===", VERSION);
+    println!("=== ZipPatch {VERSION} ===");
     println!();
 
     let mut did_patch = 0;
 
     for base_name in KNOWN_EXES {
-        let org_name = format!("{}.exe", base_name);
-        let new_name = format!("{}fixup.exe", base_name);
+        let org_name = format!("{base_name}.exe");
+        let new_name = format!("{base_name}fixup.exe");
 
+        // TODO: should we hash the exe or check the size here to detect
+        // whether the DLL will work?
         match std::fs::read(&org_name) {
             Ok(contents) => {
-                println!("* '{}' found, patching...", org_name);
+                println!("* '{org_name}' found, patching...");
                 match patch_binary(contents) {
                     Ok(contents) => match std::fs::write(&new_name, contents) {
                         Ok(()) => {
                             did_patch += 1;
-                            println!("Patch OK - see '{}'", new_name)
+                            println!("Patch OK - see '{new_name}'")
                         }
-                        Err(e) => println!("Patch FAILED - error writing '{}': {}", new_name, e),
+                        Err(e) => println!("Patch FAILED - error writing '{new_name}': {e}"),
                     },
                     Err(PatchError::AlreadyApplied) => {
-                        println!("Patch FAILED - patch already applied to '{}'", org_name)
+                        println!("Patch FAILED - patch already applied to '{org_name}'")
                     }
                     Err(PatchError::NoCandidates) => println!("Patch FAILED - no candidates"),
                     Err(PatchError::MultipleCandidates) => {
@@ -46,14 +48,14 @@ fn main() {
                 }
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                println!("* '{}' not found", org_name)
+                println!("* '{org_name}' not found")
             }
-            Err(e) => println!("Patch FAILED - error reading '{}': {}", org_name, e),
+            Err(e) => println!("Patch FAILED - error reading '{org_name}': {e}"),
         };
     }
 
     println!();
-    println!("{} executables patched", did_patch);
+    println!("{did_patch} executables patched");
     println!();
 
     wait_for_enter();
