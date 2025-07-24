@@ -1,6 +1,0 @@
-package/
-target/
-
-.gitignore
-Cargo.lock
-README.html

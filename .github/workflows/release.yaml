@@ -2,70 +2,128 @@ name: Release
 on:
   push:
     branches:
-    - workflow_release
+      - workflow_release
     tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta'
+
+env:
+  # Emit backtraces on panics.
+  RUST_BACKTRACE: full
+  # Enable colors in cargo output.
+  CARGO_TERM_COLOR: always
+  # Use sparse index if supported.
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  # Disable incremental compilation.
+  CARGO_INCREMENTAL: 0
 
 jobs:
   release:
     name: release
-    runs-on: ubuntu-20.04
-    env:
-      # Emit backtraces on panics.
-      RUST_BACKTRACE: 1
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Get the branch and tag
-      id: info
-      shell: bash
-      run: |
-        branch="${GITHUB_REF#refs/heads/}"
-        echo "$branch"
-        if [[ "$branch" == "workflow_release" ]]; then
-          echo "::set-output name=version::TEST-0.0.0"
-          echo "::set-output name=draft::--draft"
-        else
-          echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
-          echo "::set-output name=draft::"
-        fi
-        echo "::set-output name=date::$(env TZ=':America/Los_Angeles' date +'%Y-%m-%d')"
+      - name: Get release information
+        id: info
+        run: |
+          ref_name='${{ github.ref_name }}'
+          echo "ref_name: $ref_name"
 
-    - name: Install Mingw-w64
-      shell: bash
-      run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    # can't use actions-rs/toolchain@v1: https://github.com/actions-rs/toolchain/issues/126
-    - name: Install Rust
-      shell: bash
-      run: rustup show
-    - name: Build release binary
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --verbose --release
+          # is this a test release, or a real release?
+          if [[ "$ref_name" == 'workflow_release' ]]; then
+            version='v0.0.0-test'
+            target_commitish='${{ github.sha }}'
+          else
+            version="$ref_name"
+            target_commitish=''
+          fi
+          echo "version: $version"
+          echo "target_commitish: $target_commitish"
 
-    - name: Build archive
-      id: bundle
-      shell: bash
-      run: |
-        archive="ZipperFixup-${{ steps.info.outputs.version }}.zip"
-        mkdir staging
-        cp Misc/* staging/
-        cp target/i686-pc-windows-gnu/release/zipfixup.dll staging/
-        # junk paths so staging/ doesn't appear in the zip
-        zip -j "$archive" staging/*
-        echo "::set-output name=asset::$archive"
+          # is this a pre-release (-rc*, -alpha, -beta, -test)?
+          if [[ "$version" == *"-"* ]]; then
+            prerelease='true'
+          else
+            prerelease='false'
+          fi
+          echo "prerelease: $prerelease"
 
-    # Create the release last; if something else goes wrong in the run, there's
-    # less to clean up this way
-    - name: Create release
-      shell: bash
-      run: |
-        set -x
-        hub release create ${{ steps.info.outputs.draft }} \
-          --message "${{ steps.info.outputs.version }} (${{ steps.info.outputs.date }})" \
-          --attach "${{ steps.bundle.outputs.asset }}" \
-          "${{ steps.info.outputs.version }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          date=$(env TZ=':America/Los_Angeles' date +'%Y-%m-%d')
+          echo "date: $date"
+
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "target_commitish=$target_commitish" >> $GITHUB_OUTPUT
+          echo "date=$date" >> $GITHUB_OUTPUT
+          echo "prerelease=$prerelease" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Install Mingw-w64
+        shell: bash
+        run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync toolchain
+        shell: bash
+        run: rustup show
+
+      - name: Build release binary
+        run: cargo build --verbose --release
+        shell: bash
+
+      - name: Build archive
+        id: build
+        shell: bash
+        run: |
+          archive="ZipperFixup-${{ steps.info.outputs.version }}.zip"
+          mkdir 'staging'
+          cp 'misc/Readme.txt' 'staging/'
+          cp 'target/i686-pc-windows-gnu/release/zipfixup.dll' 'staging/'
+          cp 'target/i686-pc-windows-gnu/release/zippatch.exe' 'staging/'
+          # junk paths so staging/ doesn't appear in the zip
+          zip -j "$archive" staging/*
+          echo "asset=$archive" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        id: release
+        run: |
+          curl \
+            --fail \
+            --request 'POST' \
+            --url '${{ github.api_url }}/repos/${{ github.repository }}/releases' \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'Authorization: Bearer ${{ github.token }}' \
+            --header 'Content-type: application/json' \
+            --data '{
+              "tag_name": "${{ steps.info.outputs.version }}",
+              "target_commitish": "${{ steps.info.outputs.target_commitish }}",
+              "name": "${{ steps.info.outputs.version }} (${{ steps.info.outputs.date }})",
+              "prerelease": ${{ steps.info.outputs.prerelease }},
+              "draft": true
+              }' \
+            --output 'release.json'
+          cat release.json
+
+          upload_url=$(jq -r '.upload_url' release.json)
+          upload_url="${upload_url%%'{?name,label}'}"
+          echo "upload_url: $upload_url"
+          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Upload release archive
+        id: upload
+        # use `--http1.1` to work around Windows-only issue
+        # https://github.com/actions/runner-images/issues/7329
+        run: |
+          curl \
+            --fail \
+            --http1.1 \
+            --request 'POST' \
+            --url '${{ steps.release.outputs.upload_url }}?name=${{ steps.build.outputs.asset }}' \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'Authorization: Bearer ${{ github.token }}' \
+            --header 'Content-type: application/octet-stream' \
+            --data-binary '@${{ steps.build.outputs.asset }}'
+        shell: bash

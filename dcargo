@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-docker run --rm \
-    --mount type=volume,src=zipperfixup-registry,dst="/usr/local/cargo/registry" \
-    --mount type=bind,src="$PWD",dst="/app" \
-    zipperfixup:latest cargo "$@"

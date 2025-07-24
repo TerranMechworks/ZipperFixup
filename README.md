@@ -1,25 +1,35 @@
 # ZipperFixup
 
-A redistributable DLL to fix some of the bugs in `Mech3.exe`.
+A redistributable DLL to fix bugs and limitations of certain games developed by Zipper Interactive™ to modern formats and back:
+
+* the Recoil™ game (1999)
+* the MechWarrior 3™ base game (1999)
+* the MechWarrior 3 Pirate's Moon™ expansion (1999)
+
+Zipper Interactive™ was trademark or registered trademark of Sony Computer Entertainment America LLC. Other trademarks belong to the respective rightsholders.
+
+Obviously, this is an unofficial fan effort and not connected to the developers, publishers, or rightsholders. [Join us on MW3 Discord](https://discord.gg/Be53gMy), or the Recoil Discord!
 
 ## Building
 
-### Local
-
-You can build this project on your local machine if you're comfortable with Rust development. You'll need to install [Rust](https://www.rust-lang.org/tools/install). Also required is [Mingw-w64](http://mingw-w64.org/), specifically the 32 bit version.
+[Rust](https://www.rust-lang.org/tools/install) is required. Also required is [Mingw-w64](http://mingw-w64.org/), specifically the 32 bit version.
 
 * On Ubuntu: `apt install gcc-mingw-w64-i686`
 * On macOS: `brew install mingw-w64`
-* On Windows, installation is trickier. [This build](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download) from Sourceforge might work for you; you'll likely have to configure your `PATH` variable. You might prefer the Docker build method below.
+* On Windows, use WSL.
 
-### Docker
+## Release procedure
 
-If you don't want to install dependencies locally, we've provided some wrappers to make building the project with Docker easier. First, run `./dcargo-setup`. It builds the base image and creates a volume for persistently caching downloaded packages. Then, you can run `./dcargo` as you would `cargo`, for example:
-
-```bash
-./dcargo build --release
-```
+1. Review `CHANGELOG.md`
+1. Add release version number and release date to changelog; add a new `[Unreleased]` section
+1. Bump version in `Cargo.toml`
+1. Commit, push, and wait for CI
+1. Create a tag of the version (e.g. `git tag v0.1.1`)
+1. Push the tag (`git push --tags`)
+1. The build will automatically create a release as a draft
+1. Add changelog items to the release notes via the GitHub web interface
+1. Publish the release via the GitHub web interface
 
 ## License
 
-ZipperFixup is GPLv3 licensed. Please see `LICENSE`.
+Licensed under the European Union Public Licence (EUPL) 1.2 ([LICENSE](LICENSE) or https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12).

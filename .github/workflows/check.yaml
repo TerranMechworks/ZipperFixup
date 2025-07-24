@@ -2,38 +2,40 @@ name: Check
 on:
   push:
     branches:
-    - main
-    - workflow_check
+      - main
+      - workflow_check
   pull_request:
     branches:
-    - main
+      - main
+
+env:
+  # Emit backtraces on panics.
+  RUST_BACKTRACE: full
+  # Enable colors in cargo output.
+  CARGO_TERM_COLOR: always
+  # Use sparse index if supported.
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
 jobs:
   check:
     name: check
-    runs-on: ubuntu-20.04
-    env:
-      # Emit backtraces on panics.
-      RUST_BACKTRACE: 1
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Install Mingw-w64
-      shell: bash
-      run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    # can't use actions-rs/toolchain@v1: https://github.com/actions-rs/toolchain/issues/126
-    - name: Install Rust
-      shell: bash
-      run: rustup show
+      - name: Install Mingw-w64
+        shell: bash
+        run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
 
-    - name: Check build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --verbose --release
-    - name: Check fmt
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: -- --check
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync toolchain
+        shell: bash
+        run: rustup show
+
+      - name: Run cargo fmt
+        shell: bash
+        run: cargo fmt --all -- --check
+
+      - name: Run cargo check
+        shell: bash
+        run: RUSTFLAGS="-D warnings" cargo check --workspace

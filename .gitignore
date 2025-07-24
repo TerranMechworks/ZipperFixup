@@ -1,5 +1,7 @@
 target/
-package/
 
-Cargo.lock
-README.html
+.DS_Store
+.idea/
+.vscode/
+
+/scratch
