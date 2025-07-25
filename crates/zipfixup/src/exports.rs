@@ -2,18 +2,6 @@ use core::arch::global_asm;
 
 global_asm!(".section .drectve");
 
-macro_rules! forwarded_override {
-    ($exp_name:expr, $target_name:expr, $ordinal:expr) => {
-        global_asm!(concat!(
-            ".ascii \" -export:",
-            $exp_name,
-            "=",
-            $target_name,
-            "\""
-        ));
-    };
-}
-
 macro_rules! forwarded_kernel32 {
     ($exp_name:expr) => {
         global_asm!(concat!(
@@ -32,9 +20,6 @@ macro_rules! forwarded_kernel32 {
 // Ordinals here refer to the imports.
 // EOP: Windows defender gets huffy if we leave them off.
 // Zunder: But we don't use the ordinals in the asm???
-
-// Functions we hook/override
-forwarded_override!("GetTickCount", "get_tick_count", 469);
 
 // Kernel32 functions for MW and others
 forwarded_kernel32!("ReadFile"); // ordinal: 679
