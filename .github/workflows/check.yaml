@@ -40,11 +40,10 @@ jobs:
         shell: bash
         run: RUSTFLAGS="-D warnings" cargo check --workspace
 
-      # fails due to `_Unwind_RaiseException`
-      # - name: Run cargo test
-      #   shell: bash
-      #   run: RUSTFLAGS="-D warnings" cargo test --workspace
+      - name: Run cargo test
+        shell: bash
+        run: RUSTFLAGS="-D warnings" cargo test --workspace --target 'x86_64-unknown-linux-gnu'
 
       - name: Run cargo build (release)
-        run: cargo build --verbose --release
+        run: cargo build --verbose --release --package 'zipfixup' --package 'zippatch'
         shell: bash

@@ -1,0 +1,15 @@
+[package]
+name = "export-check"
+version.workspace = true
+
+description.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+object = "0.37.1"
