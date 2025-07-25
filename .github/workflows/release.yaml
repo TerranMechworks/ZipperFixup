@@ -70,7 +70,7 @@ jobs:
         run: rustup show
 
       - name: Build release binary
-        run: cargo build --verbose --release
+        run: cargo build --verbose --release --package 'zipfixup' --package 'zippatch'
         shell: bash
 
       - name: Build archive
