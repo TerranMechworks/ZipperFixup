@@ -18,6 +18,7 @@ crate-type = ["cdylib"]
 [dependencies]
 retour = "0.3.1"
 region = "3.0.2"
+time = "0.3"
 
 [dependencies.winapi]
 version = "0.3.9"
