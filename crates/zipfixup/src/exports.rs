@@ -42,6 +42,7 @@ forwarded_kernel32!("CreateEventA"); // ordinal: 76
 forwarded_kernel32!("CreateThread"); // ordinal: 109
 forwarded_kernel32!("WaitForSingleObject"); // ordinal: 896
 forwarded_kernel32!("OutputDebugStringA"); // ordinal: 639
+forwarded_kernel32!("OutputDebugStringW");
 forwarded_kernel32!("SetEvent"); // ordinal: 773
 forwarded_kernel32!("GetDriveTypeA"); // ordinal: 332
 forwarded_kernel32!("GetTempPathA"); // ordinal: 460

@@ -47,6 +47,7 @@ const EXPECTED_FORWARDS: &[&str] = &[
     "lstrlenA",
     "MoveFileA",
     "OutputDebugStringA",
+    "OutputDebugStringW",
     "QueryPerformanceCounter",
     "QueryPerformanceFrequency",
     "ReadFile",
