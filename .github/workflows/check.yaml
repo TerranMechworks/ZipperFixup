@@ -45,7 +45,9 @@ jobs:
         run: RUSTFLAGS="-D warnings" cargo test --workspace --target 'x86_64-unknown-linux-gnu'
 
       - name: Run cargo build (release)
-        run: |
-          cargo build --verbose --release --package 'zipfixup' --package 'zippatch'
-          cargo run --package 'export-check' --target 'x86_64-unknown-linux-gnu'
+        run: cargo build --verbose --release --package 'zipfixup' --package 'zippatch'
+        shell: bash
+
+      - name: Run export checker
+        run: cargo run --package 'export-check' --target 'x86_64-unknown-linux-gnu'
         shell: bash
