@@ -12,6 +12,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 ///
 /// needed in the patcher, because overrides cannot be specified per-package
 /// (yet)
+#[cfg(target_env = "gnu")]
 #[unsafe(no_mangle)]
 pub extern "C" fn _Unwind_Resume() {}
 

@@ -58,7 +58,7 @@ fn on_thread_attach_inner() -> Result<()> {
         // Mech3 v1.2
         2384384 => crate::mech3::install_hooks()?,
         // Recoil
-        1868288 => crate::recoil::install_hooks()?,
+        1254912 | 1868288 => crate::recoil::install_hooks()?,
         _ => {
             output!("ERROR: Exe unknown");
         }
