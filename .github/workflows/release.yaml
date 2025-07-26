@@ -22,10 +22,11 @@ env:
 jobs:
   release:
     name: release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Get release information
         id: info
+        shell: bash
         run: |
           ref_name='${{ github.ref_name }}'
           echo "ref_name: $ref_name"
@@ -56,11 +57,6 @@ jobs:
           echo "target_commitish=$target_commitish" >> $GITHUB_OUTPUT
           echo "date=$date" >> $GITHUB_OUTPUT
           echo "prerelease=$prerelease" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Install Mingw-w64
-        shell: bash
-        run: sudo apt install -y --no-install-recommends gcc-mingw-w64-i686
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -70,8 +66,12 @@ jobs:
         run: rustup show
 
       - name: Build release binary
-        run: cargo build --verbose --release --package 'zipfixup' --package 'zippatch'
         shell: bash
+        run: cargo build --verbose --release --package 'zipfixup' --package 'zippatch' --target 'i686-pc-windows-msvc'
+
+      - name: Run export checker
+        shell: bash
+        run: cargo run --package 'export-check' --target 'x86_64-pc-windows-msvc' -- 'target/i686-pc-windows-msvc/release/zipfixup.dll'
 
       - name: Build archive
         id: build
@@ -80,14 +80,18 @@ jobs:
           archive="ZipperFixup-${{ steps.info.outputs.version }}.zip"
           mkdir 'staging'
           cp 'misc/Readme.txt' 'staging/'
-          cp 'target/i686-pc-windows-gnu/release/zipfixup.dll' 'staging/'
-          cp 'target/i686-pc-windows-gnu/release/zippatch.exe' 'staging/'
+          cp 'LICENSE' 'staging/'
+          cp 'target/i686-pc-windows-msvc/release/zipfixup.dll' 'staging/'
+          cp 'target/i686-pc-windows-msvc/release/zippatch.exe' 'staging/'
           # junk paths so staging/ doesn't appear in the zip
-          zip -j "$archive" staging/*
+          # zip -j "$archive" staging/*
+          cd 'staging/'
+          7z a -tzip "../$archive" *
           echo "asset=$archive" >> $GITHUB_OUTPUT
 
       - name: Create GitHub release
         id: release
+        shell: bash
         run: |
           curl \
             --fail \
@@ -110,10 +114,10 @@ jobs:
           upload_url="${upload_url%%'{?name,label}'}"
           echo "upload_url: $upload_url"
           echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Upload release archive
         id: upload
+        shell: bash
         # use `--http1.1` to work around Windows-only issue
         # https://github.com/actions/runner-images/issues/7329
         run: |
@@ -126,4 +130,3 @@ jobs:
             --header 'Authorization: Bearer ${{ github.token }}' \
             --header 'Content-type: application/octet-stream' \
             --data-binary '@${{ steps.build.outputs.asset }}'
-        shell: bash
