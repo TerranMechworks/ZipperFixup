@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (expected_exports, expected_forwards) = parse_def_file()?;
 
     for path in std::env::args().skip(1) {
-        println!("=== {} ===", path);
+        println!("=== {path} ===");
 
         let contents = std::fs::read(path)?;
         let data = contents.as_slice();
@@ -115,11 +115,11 @@ fn validate_exports(
     exports.sort();
     forwards.sort();
 
-    for name in exports.iter().copied() {
+    for name in exports {
         println!("{name}");
     }
 
-    for forward in forwards.iter().copied() {
+    for forward in forwards {
         println!("{forward}");
     }
 
