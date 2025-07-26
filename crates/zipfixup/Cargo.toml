@@ -19,10 +19,14 @@ crate-type = ["cdylib"]
 retour = "0.3.1"
 region = "3.0.2"
 
-[dependencies.winapi]
-version = "0.3.9"
+[dependencies.windows]
+version = "0.62.0"
 default-features = false
-features = ["debugapi", "libloaderapi"]
+features = [
+    "Win32_System_Diagnostics_Debug", # OutputDebugStringA/OutputDebugStringW
+    "Win32_System_LibraryLoader", # DisableThreadLibraryCalls
+    "Win32_System_SystemServices", # DLL_PROCESS_ATTACH/DLL_PROCESS_DETACH
+]
 
 [build-dependencies]
 cc = "1.2"
