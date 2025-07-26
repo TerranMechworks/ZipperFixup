@@ -2,21 +2,25 @@
 //! executable that loaded the DLL.
 use crate::{Result, output};
 use std::sync::Mutex;
-use winapi::shared::minwindef::{BOOL, DWORD, HINSTANCE, LPVOID, TRUE};
-use winapi::um::libloaderapi::DisableThreadLibraryCalls;
-use winapi::um::winnt::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
+use windows::Win32::Foundation::{HMODULE, TRUE};
+use windows::Win32::System::LibraryLoader::DisableThreadLibraryCalls;
+use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
-extern "system" fn DllMain(dll_module: HINSTANCE, call_reason: DWORD, _reserved: LPVOID) -> BOOL {
+extern "system" fn DllMain(
+    hlibmodule: HMODULE,
+    call_reason: u32,
+    _reserved: *mut std::ffi::c_void,
+) -> windows::core::BOOL {
     match call_reason {
         DLL_PROCESS_ATTACH => {
             output!("DLL_PROCESS_ATTACH");
             // disable DLL_THREAD_ATTACH/DLL_THREAD_DETACH notifications, since
             // we don't need them, and may help with spawning threads
-            unsafe { DisableThreadLibraryCalls(dll_module) };
+            let _ = unsafe { DisableThreadLibraryCalls(hlibmodule) };
             // it's unclear what is allowed to be done in DllMain.
             // theoretically, even spawning a thread is not "recommended":
             // https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices

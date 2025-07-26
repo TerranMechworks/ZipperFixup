@@ -1,6 +1,7 @@
 //! [`output!`] macro to log messages via the Debug API, to be viewed in e.g.
 //! [DebugView](https://learn.microsoft.com/en-us/sysinternals/downloads/debugview).
-use ::winapi::um::debugapi::{OutputDebugStringA, OutputDebugStringW};
+use windows::Win32::System::Diagnostics::Debug::{OutputDebugStringA, OutputDebugStringW};
+use windows::core::{PCSTR, PCWSTR};
 
 macro_rules! output {
     ($fmt:literal $(, $args:expr)* $(,)?) => {{
@@ -29,18 +30,15 @@ pub(crate) use output;
 pub(crate) fn output_debug_string_w(msg: &str) {
     let s = format_log_msg(msg);
     let v: Vec<u16> = s.encode_utf16().collect();
-    let p: *const u16 = v.as_ptr();
+    let p = PCWSTR::from_raw(v.as_ptr());
     unsafe { OutputDebugStringW(p) };
     // paranoia: ensure `v` is valid until after `OutputDebugStringW`
     drop(v);
 }
 
-fn encode_ascii(s: &str) -> Vec<i8> {
+fn encode_ascii(s: &str) -> Vec<u8> {
     s.chars()
-        .map(|c| {
-            let b = if c.is_ascii() { c as u8 } else { b'?' };
-            b as i8
-        })
+        .map(|c| if c.is_ascii() { c as u8 } else { b'?' })
         .collect()
 }
 
@@ -52,8 +50,8 @@ fn encode_ascii(s: &str) -> Vec<i8> {
 #[allow(dead_code, reason = "Use Unicode version by default")]
 pub(crate) fn output_debug_string_a(msg: &str) {
     let s = format_log_msg(msg);
-    let v: Vec<i8> = encode_ascii(&s);
-    let p: *const i8 = v.as_ptr();
+    let v: Vec<u8> = encode_ascii(&s);
+    let p = PCSTR::from_raw(v.as_ptr());
     unsafe { OutputDebugStringA(p) };
     // paranoia: ensure `v` is valid until after `OutputDebugStringA`
     drop(v);
