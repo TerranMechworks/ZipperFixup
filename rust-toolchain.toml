@@ -1,4 +1,4 @@
 [toolchain]
 channel = "1.88.0"
 profile = "default"
-targets = ["i686-pc-windows-gnu"]
+targets = ["i686-pc-windows-gnu", "i686-pc-windows-msvc"]
