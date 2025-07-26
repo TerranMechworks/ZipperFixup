@@ -10,6 +10,7 @@ fn main() {
     println!("cargo::warning={path}");
     println!("cargo::rerun-if-changed={path}");
 
+    #[allow(clippy::wildcard_in_or_patterns)]
     match env.as_str() {
         "gnu" => {
             println!("cargo::rustc-link-arg-cdylib={path}");

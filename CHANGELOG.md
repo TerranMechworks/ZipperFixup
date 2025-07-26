@@ -11,6 +11,7 @@
 - Fixup: Specify exports via [Module-Definition (.Def)
   file](https://learn.microsoft.com/en-us/cpp/build/reference/module-definition-dot-def-files).
 - Fixup: Now builds using either `i686-pc-windows-gnu` or `i686-pc-windows-msvc`.
+- Fixup: `output!` macro uses Unicode/`OutputDebugStringW` by default.
 
 - Project: Update Rust version to 1.88.0 and edition to 2024. This moves off
   nightly, since everything we need is now stabilised, and should help with
