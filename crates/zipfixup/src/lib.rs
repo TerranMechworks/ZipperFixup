@@ -1,7 +1,6 @@
 #![cfg(windows)]
 mod dbg;
 mod dll_main;
-mod exports;
 mod hook;
 mod mech3;
 mod overrides;
