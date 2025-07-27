@@ -1,4 +1,18 @@
+//! [`output!`] macro to log messages via the Debug API, to be viewed in e.g.
+//! [DebugView](https://learn.microsoft.com/en-us/sysinternals/downloads/debugview).
 use ::winapi::um::debugapi::{OutputDebugStringA, OutputDebugStringW};
+
+macro_rules! output {
+    ($fmt:literal $(, $args:expr)* $(,)?) => {{
+        let msg: String = format!($fmt $(, $args)*);
+        $crate::dbg::output_debug_string_w(&msg);
+    }};
+    (a $fmt:literal $(, $args:expr)* $(,)?) => {{
+        let msg: String = format!($fmt $(, $args)*);
+        $crate::dbg::output_debug_string_a(&msg);
+    }};
+}
+pub(crate) use output;
 
 /// Output a Unicode debug string.
 ///
@@ -13,18 +27,7 @@ use ::winapi::um::debugapi::{OutputDebugStringA, OutputDebugStringW};
 /// Although you shouldn't log a lot of stuff, if you need to, the ASCII
 /// version may be slightly faster.
 pub(crate) fn output_debug_string_w(msg: &str) {
-    let now = time::OffsetDateTime::now_utc();
-    let s = format!(
-        "[ZF {:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z] {msg}\0",
-        now.year(),
-        now.month(),
-        now.day(),
-        now.hour(),
-        now.minute(),
-        now.second(),
-        now.millisecond(),
-    );
-
+    let s = format_log_msg(msg);
     let v: Vec<u16> = s.encode_utf16().collect();
     let p: *const u16 = v.as_ptr();
     unsafe { OutputDebugStringW(p) };
@@ -48,33 +51,21 @@ fn encode_ascii(s: &str) -> Vec<i8> {
 /// Microsoft Unicode ineptness).
 #[allow(dead_code, reason = "Use Unicode version by default")]
 pub(crate) fn output_debug_string_a(msg: &str) {
+    let s = format_log_msg(msg);
+    let v: Vec<i8> = encode_ascii(&s);
+    let p: *const i8 = v.as_ptr();
+    unsafe { OutputDebugStringA(p) };
+    // paranoia: ensure `v` is valid until after `OutputDebugStringA`
+    drop(v);
+}
+
+fn format_log_msg(msg: &str) -> String {
     let now = time::OffsetDateTime::now_utc();
-    let s = format!(
-        "[ZF {:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z] {msg}\0",
-        now.year(),
-        now.month(),
-        now.day(),
+    format!(
+        "[ZF {:02}:{:02}:{:02}.{:03}Z] {msg}\0",
         now.hour(),
         now.minute(),
         now.second(),
         now.millisecond(),
-    );
-
-    let v: Vec<i8> = encode_ascii(&s);
-    let p: *const i8 = v.as_ptr();
-    unsafe { OutputDebugStringA(p) };
-    // paranoia: ensure `s` is valid until after `OutputDebugStringA`
-    drop(s);
+    )
 }
-
-macro_rules! output {
-    (a $fmt:literal $(, $args:expr)* $(,)?) => {{
-        let msg: String = format!($fmt $(, $args)*);
-        $crate::dbg::output_debug_string_a(&msg);
-    }};
-    ($fmt:literal $(, $args:expr)* $(,)?) => {{
-        let msg: String = format!($fmt $(, $args)*);
-        $crate::dbg::output_debug_string_w(&msg);
-    }};
-}
-pub(crate) use output;

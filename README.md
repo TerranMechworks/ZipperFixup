@@ -12,8 +12,7 @@ Obviously, this is an unofficial fan effort and not connected to the developers,
 
 ## Installation
 
-1. Download [the latest release Zip file](https://github.com/TerranMechworks/ZipperFixup/releases), for example `
-ZipperFixup-0.1.2.zip`.
+1. Download [the latest release Zip file](https://github.com/TerranMechworks/ZipperFixup/releases), for example `ZipperFixup-0.1.2.zip`.
 2. Extract the Zip file.
 3. Follow instructions of `Readme.txt` in Zip file.
 

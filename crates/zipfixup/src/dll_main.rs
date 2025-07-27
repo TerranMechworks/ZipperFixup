@@ -1,3 +1,5 @@
+//! [`DllMain`] logic, also installs specific hooks/patches based on the
+//! executable that loaded the DLL.
 use crate::{Result, output};
 use std::sync::Mutex;
 use winapi::shared::minwindef::{BOOL, DWORD, HINSTANCE, LPVOID, TRUE};
@@ -16,10 +18,11 @@ extern "system" fn DllMain(dll_module: HINSTANCE, call_reason: DWORD, _reserved:
             // we don't need them, and may help with spawning threads
             unsafe { DisableThreadLibraryCalls(dll_module) };
             // it's unclear what is allowed to be done in DllMain.
-            // theoretically, even spawning a thread is not allowed:
+            // theoretically, even spawning a thread is not "recommended":
             // https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices
             // https://devblogs.microsoft.com/oldnewthing/20070904-00/?p=25283
-            let _ = std::thread::spawn(on_thread_attach);
+            // however, we don't synchronize on the thread, so it's ok?
+            let _ = std::thread::spawn(load_fixup);
         }
         DLL_PROCESS_DETACH => (),
         _ => (),
@@ -27,16 +30,15 @@ extern "system" fn DllMain(dll_module: HINSTANCE, call_reason: DWORD, _reserved:
     TRUE
 }
 
-fn on_thread_attach() {
-    if let Err(e) = on_thread_attach_inner() {
-        output!("FATAL ERROR: {:?}", e);
-        panic!("FATAL ERROR");
+fn load_fixup() {
+    if let Err(e) = load_fixup_inner() {
+        output!("FATAL error when loading fixup: {:?}", e);
     }
 }
 
 static INSTALLED: Mutex<bool> = Mutex::new(false);
 
-fn on_thread_attach_inner() -> Result<()> {
+fn load_fixup_inner() -> Result<()> {
     output!("Fixup loaded ({})", VERSION);
 
     let mut installed = INSTALLED.lock().unwrap();
@@ -56,9 +58,9 @@ fn on_thread_attach_inner() -> Result<()> {
 
     match exe_size {
         // Mech3 v1.2
-        2384384 => crate::mech3::install_hooks()?,
+        2384384 => crate::mech3::install()?,
         // Recoil
-        1254912 | 1868288 => crate::recoil::install_hooks()?,
+        1254912 | 1868288 => crate::recoil::install()?,
         _ => {
             output!("ERROR: Exe unknown");
         }
