@@ -1,6 +1,8 @@
+mod hash;
 mod patch;
 
-use patch::{PatchError, patch_binary};
+use hash::HashCheck;
+use patch::PatchError;
 
 const KNOWN_EXES: &[&str] = &["Mech3", "Recoil", "Recoil3dfx", "RecoilD3D"];
 
@@ -28,8 +30,25 @@ fn main() {
         // whether the DLL will work?
         match std::fs::read(&org_name) {
             Ok(contents) => {
-                println!("* '{org_name}' found, patching...");
-                match patch_binary(contents) {
+                println!("* '{org_name}' found, checking and patching...");
+                match hash::hash_binary(&contents) {
+                    HashCheck::Known(known) => {
+                        println!("INFO: Identified executable as {known}");
+                    }
+                    HashCheck::Unknown(hash) => {
+                        println!(
+                            "WARNING: Unknown executable, ZipperFixup may not work as expected."
+                        );
+                        println!("         This can happen for several reasons:");
+                        println!("         * You haven't installed the v1.2 patch");
+                        println!("         * You have a version or language we don't know about");
+                        println!("         * You have installed another patch (e.g. NoCD)");
+                        println!("Developer information:");
+                        println!("{hash}  {org_name}");
+                    }
+                }
+
+                match patch::patch_binary(contents) {
                     Ok(contents) => match std::fs::write(&new_name, contents) {
                         Ok(()) => {
                             did_patch += 1;

@@ -12,3 +12,10 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
+hex-literal = "1.0.0"
+
+[dependencies.sha2]
+version = "0.10"
+default-features = false
+# WARNING: 0.11.0-rc.0 uses `alloc` instead
+features = ["std"]
