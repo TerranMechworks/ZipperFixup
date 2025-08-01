@@ -19,4 +19,6 @@ fn main() {
             println!("cargo::rustc-link-arg-cdylib=/DEF:{path}");
         }
     }
+
+    cc::Build::new().file("src/err_msg.c").compile("err_msg");
 }

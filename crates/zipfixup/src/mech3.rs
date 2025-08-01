@@ -11,10 +11,10 @@ const SCREEN_HEIGHT_PX: *const i32 = 0x8007d0 as _;
 // Hooked functions
 
 type DrawLineFn = extern "fastcall" fn(*mut (), i32, i32, i32, i32, i16);
-const DRAW_LINE_ADDR: i32 = 0x00563b80;
+const DRAW_LINE_ADDR: u32 = 0x00563b80;
 
 type DrawDashedLineFn = extern "fastcall" fn(*mut (), i32, i32, i32, i32, i16, i32);
-const DRAW_DASHED_LINE_ADDR: i32 = 0x00563c50;
+const DRAW_DASHED_LINE_ADDR: u32 = 0x00563c50;
 
 // Hooks
 
@@ -23,8 +23,8 @@ decl_hooks! {
     DRAW_DASHED_LINE_HOOK: DrawDashedLineFn,
 }
 
-pub(crate) fn install_hooks() -> Result<()> {
-    output!("Installing hooks... (MW)");
+pub(crate) fn install() -> Result<()> {
+    output!("Installing... (MW)");
 
     let target: DrawLineFn = unsafe { std::mem::transmute(DRAW_LINE_ADDR) };
     hook("DrawLine", target, draw_line, &DRAW_LINE_HOOK)?;
@@ -37,7 +37,7 @@ pub(crate) fn install_hooks() -> Result<()> {
         &DRAW_DASHED_LINE_HOOK,
     )?;
 
-    output!("Installed hooks");
+    output!("Installed");
     Ok(())
 }
 

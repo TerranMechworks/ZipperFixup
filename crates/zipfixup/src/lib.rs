@@ -1,9 +1,11 @@
 #![cfg(windows)]
 mod dbg;
 mod dll_main;
+mod err_msg;
 mod hook;
 mod mech3;
 mod overrides;
+mod patch;
 mod recoil;
 
 pub(crate) use dbg::output;
