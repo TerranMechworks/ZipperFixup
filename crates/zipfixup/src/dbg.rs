@@ -14,6 +14,14 @@ macro_rules! output {
 }
 pub(crate) use output;
 
+fn encode_unicode(msg: &str) -> Vec<u16> {
+    const ZF: &[u16] = &[0x5b, 0x5a, 0x46, 0x5d, 0x20]; // "[ZF] "
+    ZF.iter()
+        .copied()
+        .chain(msg.encode_utf16().chain(Some(0)))
+        .collect()
+}
+
 /// Output a Unicode debug string.
 ///
 /// OutputDebugStringW is... weird/standard Microsoft:
@@ -27,20 +35,22 @@ pub(crate) use output;
 /// Although you shouldn't log a lot of stuff, if you need to, the ASCII
 /// version may be slightly faster.
 pub(crate) fn output_debug_string_w(msg: &str) {
-    let s = format_log_msg(msg);
-    let v: Vec<u16> = s.encode_utf16().collect();
+    let v: Vec<u16> = encode_unicode(msg);
     let p: *const u16 = v.as_ptr();
     unsafe { OutputDebugStringW(p) };
     // paranoia: ensure `v` is valid until after `OutputDebugStringW`
     drop(v);
 }
 
-fn encode_ascii(s: &str) -> Vec<i8> {
-    s.chars()
-        .map(|c| {
-            let b = if c.is_ascii() { c as u8 } else { b'?' };
-            b as i8
-        })
+fn encode_ascii(msg: &str) -> Vec<i8> {
+    const ZF: &[u8] = b"[ZF] ";
+    let msg = msg
+        .chars()
+        .map(|c| if c.is_ascii() { c as u8 } else { b'?' });
+    ZF.iter()
+        .copied()
+        .chain(msg.chain(Some(0)))
+        .map(|b| b as i8)
         .collect()
 }
 
@@ -51,21 +61,9 @@ fn encode_ascii(s: &str) -> Vec<i8> {
 /// Microsoft Unicode ineptness).
 #[allow(dead_code, reason = "Use Unicode version by default")]
 pub(crate) fn output_debug_string_a(msg: &str) {
-    let s = format_log_msg(msg);
-    let v: Vec<i8> = encode_ascii(&s);
+    let v: Vec<i8> = encode_ascii(&msg);
     let p: *const i8 = v.as_ptr();
     unsafe { OutputDebugStringA(p) };
     // paranoia: ensure `v` is valid until after `OutputDebugStringA`
     drop(v);
-}
-
-fn format_log_msg(msg: &str) -> String {
-    let now = time::OffsetDateTime::now_utc();
-    format!(
-        "[ZF {:02}:{:02}:{:02}.{:03}Z] {msg}\0",
-        now.hour(),
-        now.minute(),
-        now.second(),
-        now.millisecond(),
-    )
 }
