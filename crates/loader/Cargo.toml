@@ -1,0 +1,32 @@
+[package]
+name = "loader"
+version.workspace = true
+
+description.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+color-eyre = { version = "0.6", default-features = false }
+
+[dependencies.windows]
+version = "0.61.3"
+default-features = false
+features = [
+    "std",
+    # CreateProcessW
+    "Win32_Security",
+    # CreateProcessW/OpenProcess/CreateRemoteThread/ResumeThread/WaitForSingleObject
+    "Win32_System_Threading",
+    # VirtualAllocEx
+    "Win32_System_Memory",
+    # WriteProcessMemory
+    "Win32_System_Diagnostics_Debug",
+    # GetModuleHandleW/GetProcAddress
+    "Win32_System_LibraryLoader",
+]
