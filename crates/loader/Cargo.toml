@@ -13,6 +13,12 @@ publish.workspace = true
 
 [dependencies]
 color-eyre = { version = "0.6", default-features = false }
+tracing = "0.1.41"
+
+[dependencies.tracing-subscriber]
+version = "0.3.19"
+default-features = false
+features = ["std", "env-filter", "fmt", "ansi"]
 
 [dependencies.windows]
 version = "0.61.3"
@@ -29,4 +35,6 @@ features = [
     "Win32_System_Diagnostics_Debug",
     # GetModuleHandleW/GetProcAddress
     "Win32_System_LibraryLoader",
+    "Win32_System_SystemInformation",
+    "Win32_System_SystemServices",
 ]
