@@ -2,39 +2,37 @@
 //! executable that loaded the DLL.
 use crate::{Result, output};
 use std::sync::Mutex;
-use windows::Win32::Foundation::{HMODULE, TRUE};
-use windows::Win32::System::LibraryLoader::DisableThreadLibraryCalls;
-use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
+use windows::Win32::Foundation::{FALSE, GetLastError, HMODULE, TRUE};
+use windows::Win32::System::SystemServices::DLL_PROCESS_ATTACH;
+use windows::Win32::System::Threading::{GetCurrentThread, QueueUserAPC};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 extern "system" fn DllMain(
-    hlibmodule: HMODULE,
+    _hlibmodule: HMODULE,
     call_reason: u32,
     _reserved: *mut std::ffi::c_void,
 ) -> windows::core::BOOL {
     match call_reason {
         DLL_PROCESS_ATTACH => {
             output!("DLL_PROCESS_ATTACH");
-            // disable DLL_THREAD_ATTACH/DLL_THREAD_DETACH notifications, since
-            // we don't need them, and may help with spawning threads
-            let _ = unsafe { DisableThreadLibraryCalls(hlibmodule) };
-            // it's unclear what is allowed to be done in DllMain.
-            // theoretically, even spawning a thread is not "recommended":
-            // https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices
-            // https://devblogs.microsoft.com/oldnewthing/20070904-00/?p=25283
-            // however, we don't synchronize on the thread, so it's ok?
-            let _ = std::thread::spawn(load_fixup);
+            let hthread = unsafe { GetCurrentThread() };
+            let res = unsafe { QueueUserAPC(Some(load_fixup), hthread, 0) };
+            if res == 0 {
+                let e = unsafe { GetLastError() }.0;
+                output!("QueueUserAPC failed: {e:08x}");
+                FALSE
+            } else {
+                TRUE
+            }
         }
-        DLL_PROCESS_DETACH => (),
-        _ => (),
+        _ => TRUE,
     }
-    TRUE
 }
 
-fn load_fixup() {
+unsafe extern "system" fn load_fixup(_data: usize) {
     if let Err(e) = load_fixup_inner() {
         output!("FATAL error when loading fixup: {:?}", e);
     }

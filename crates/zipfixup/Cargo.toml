@@ -25,9 +25,13 @@ region = "3.0.2"
 version = "0.62.0"
 default-features = false
 features = [
-    "Win32_System_Diagnostics_Debug", # OutputDebugStringA/OutputDebugStringW
-    "Win32_System_LibraryLoader", # DisableThreadLibraryCalls
-    "Win32_System_SystemServices", # DLL_PROCESS_ATTACH/DLL_PROCESS_DETACH
+    "std",
+    # OutputDebugStringA/OutputDebugStringW
+    "Win32_System_Diagnostics_Debug",
+    # DLL_PROCESS_ATTACH/DLL_PROCESS_DETACH
+    "Win32_System_SystemServices",
+    # GetCurrentThread/QueueUserAPC
+    "Win32_System_Threading",
 ]
 
 [build-dependencies]
